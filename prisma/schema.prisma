@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  NASABAH
+  ADMIN
+}
+
+enum JenisSampah {
+  plastik
+  kertas
+  logam
+  kaca
+}
+
+enum StatusSetor {
+  menunggu_konfirmasi
+  diverifikasi
+  ditolak
+  selesai
+}
+
+enum StatusPenukaran {
+  diproses
+  selesai
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  nasabah   Nasabah?
+  adminBank AdminBank?
+
+  @@map("users")
+}
+
+model Nasabah {
+  id          String   @id @default(uuid())
+  namaNasabah String
+  alamat      String
+  telp        String
+  saldoPoin   Int      @default(0)
+  foto        String?
+  createdAt   DateTime @default(now())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  setorSampah   SetorSampah[]
+  penukaranPoin PenukaranPoin[]
+
+  @@map("nasabah")
+}
+
+model AdminBank {
+  id            String @id @default(uuid())
+  namaUnit      String
+  namaPengelola String
+  telp          String
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  verifikasiSetor SetorSampah[] @relation("AdminVerifier")
+
+  @@map("admin_bank")
+}
+
+model KategoriSampah {
+  id           String      @id @default(uuid())
+  namaKategori String      @unique
+  hargaPerKg   Float
+  poinPerKg    Float
+  jenis        JenisSampah
+  foto         String?
+  createdAt    DateTime    @default(now())
+
+  detailSetors DetailSetor[]
+
+  @@map("kategori_sampah")
+}
+
+model SetorSampah {
+  id           String      @id @default(uuid())
+  kodeSetor    String      @unique
+  tanggal      DateTime
+  status       StatusSetor @default(menunggu_konfirmasi)
+  catatan      String?
+  catatanAdmin String?
+  totalBeratKg Float       @default(0)
+  totalPoin    Int         @default(0)
+  createdAt    DateTime    @default(now())
+
+  nasabahId String
+  nasabah   Nasabah @relation(fields: [nasabahId], references: [id])
+
+  adminId String?
+  admin   AdminBank? @relation("AdminVerifier", fields: [adminId], references: [id])
+
+  detailSetors DetailSetor[]
+
+  @@map("setor_sampah")
+}
+
+model DetailSetor {
+  id           String @id @default(uuid())
+  beratKg      Float
+  subtotalPoin Int    @default(0)
+
+  setorId String
+  setor   SetorSampah @relation(fields: [setorId], references: [id], onDelete: Cascade)
+
+  kategoriSampahId String
+  kategoriSampah   KategoriSampah @relation(fields: [kategoriSampahId], references: [id])
+
+  @@map("detail_setor")
+}
+
+model Hadiah {
+  id             String   @id @default(uuid())
+  namaHadiah     String   @unique
+  poinDibutuhkan Int
+  stok           Int
+  foto           String?
+  createdAt      DateTime @default(now())
+
+  penukaranPoin PenukaranPoin[]
+
+  @@map("hadiah")
+}
+
+model PenukaranPoin {
+  id            String          @id @default(uuid())
+  kodePenukaran String          @unique
+  tanggal       DateTime        @default(now())
+  poinTerpakai  Int
+  status        StatusPenukaran @default(diproses)
+
+  nasabahId String
+  nasabah   Nasabah @relation(fields: [nasabahId], references: [id])
+
+  hadiahId String
+  hadiah   Hadiah @relation(fields: [hadiahId], references: [id])
+
+  @@map("penukaran_poin")
+}
