@@ -18,6 +18,6 @@ export class CreateNasabahDto {
   alamat: string;
 
   @IsString()
-  @IsNotEmpty()
+  @MinLength(11)
   telp: string;
 }

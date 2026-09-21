@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateNasabahDto {
   @IsString()
@@ -6,7 +6,7 @@ export class UpdateNasabahDto {
   namaLengkap: string;
 
   @IsString()
-  @IsNotEmpty()
+  @MinLength(11)
   noTelepon: string;
 
   @IsString()

@@ -18,6 +18,6 @@ export class RegisterAdminDto {
   namaPengelola: string;
 
   @IsString()
-  @IsNotEmpty()
+  @MinLength(11)
   telp: string;
 }
