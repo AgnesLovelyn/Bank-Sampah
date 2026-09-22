@@ -67,7 +67,7 @@ export class SetorSampahService {
         catatan: dto.catatan,
         totalBeratKg,
         totalPoin,
-        nasabahId, // <- sudah dikonversi, bukan userId lagi
+        nasabahId, 
         detailSetors: { create: detailData },
       },
       include: { detailSetors: true },
@@ -112,7 +112,7 @@ async adminList(status?: string, bulan?: string) {
     const setor = await this.prisma.setorSampah.findUnique({
       where: { id },
       include: {
-        nasabah: true, // nasabah.userId ada di sini
+        nasabah: true, 
         detailSetors: { include: { kategoriSampah: true } },
       },
     });
@@ -121,8 +121,7 @@ async adminList(status?: string, bulan?: string) {
       throw new NotFoundException('Data setor sampah tidak ditemukan.');
     }
 
-    // Bandingin userId asli si nasabah pemilik data (setor.nasabah.userId),
-    // bukan setor.nasabahId (itu Nasabah.id, beda sama User.id dari token)
+   
     if (requesterRole === 'NASABAH' && setor.nasabah.userId !== requesterUserId) {
       throw new ForbiddenException('Anda tidak berhak mengakses data ini.');
     }
@@ -180,7 +179,7 @@ async adminList(status?: string, bulan?: string) {
           catatanAdmin: dto.catatanAdmin,
           totalPoin: totalPoinFinal,
           totalBeratKg: totalBeratFinal,
-          adminId, // <- sudah dikonversi ke AdminBank.id
+          adminId, 
         },
       });
 

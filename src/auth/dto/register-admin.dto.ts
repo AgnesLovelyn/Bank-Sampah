@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export class RegisterAdminDto {
   @IsString()
@@ -18,6 +18,6 @@ export class RegisterAdminDto {
   namaPengelola: string;
 
   @IsString()
-  @MinLength(11)
+  @MaxLength(12)
   telp: string;
 }
