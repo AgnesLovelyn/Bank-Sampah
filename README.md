@@ -1,114 +1,163 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ♻️ Bank Sampah Digital - Eco-Waste Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Bank Sampah Digital adalah sistem backend berbasis REST API untuk pengelolaan bank sampah, memungkinkan Nasabah mengajukan penyetoran sampah daur ulang dan menukarkan poin dengan hadiah, sementara Admin mengelola master data, memverifikasi transaksi, dan memantau rekapitulasi bulanan.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Project ini dikerjakan untuk **Uji Kompetensi Keahlian (UKK) RPL 2026/2027 - Kategori Backend**.
 
-## Description
+## 🛠️ Teknologi yang Digunakan
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Framework:** NestJS (TypeScript)
+- **ORM:** Prisma 7 (dengan driver adapter `@prisma/adapter-pg`)
+- **Database:** PostgreSQL (Supabase)
+- **Autentikasi:** JWT (`@nestjs/jwt`, `@nestjs/passport`), password di-hash dengan bcrypt
+- **Upload Foto:** Cloudinary
+- **Dokumentasi API:** Swagger (`@nestjs/swagger`)
+- **Deployment:** Railway
 
-## Project setup
+## ✨ Fitur Utama
 
-```bash
-$ npm install
+### Nasabah
+- Register & login mandiri
+- Melihat daftar kategori sampah beserta harga & poin per kg
+- Mengajukan penyetoran sampah (multi-item dalam satu transaksi)
+- Melihat status & histori penyetoran (filter per bulan)
+- Melihat saldo poin & dashboard ringkasan pribadi
+- Menukarkan poin dengan hadiah/voucher
+- Melihat nota/struk transaksi
+
+### Admin
+- Register unit bank sampah & login
+- CRUD data Nasabah
+- CRUD Kategori Sampah (jenis, harga/kg, poin/kg)
+- CRUD Hadiah/voucher penukaran poin
+- Verifikasi & penimbangan ulang pengajuan setor sampah
+- Update status transaksi penukaran poin
+- Rekapitulasi tonase sampah & estimasi pembayaran per bulan
+- Dashboard statistik keseluruhan sistem
+
+## 📁 Struktur Modul
+
+```
+src/
+├── auth/               # Register, login, JWT
+├── nasabah/             # CRUD nasabah (oleh admin)
+├── kategori-sampah/     # CRUD master kategori sampah
+├── setor-sampah/        # Pengajuan & verifikasi penyetoran
+├── hadiah/               # CRUD katalog hadiah
+├── penukaran-poin/       # Transaksi tukar poin
+├── rekapitulasi/         # Laporan bulanan (admin)
+├── dashboard/             # Ringkasan statistik (nasabah & admin)
+├── seed/                  # Generate data dummy
+├── prisma/                # PrismaService (koneksi database)
+└── common/
+    ├── guards/            # JwtAuthGuard, RolesGuard
+    ├── decorators/        # @Roles(), @CurrentUser()
+    ├── interceptors/       # TransformInterceptor (format response)
+    ├── filters/            # HttpExceptionFilter (format error)
+    └── cloudinary/         # CloudinaryService (upload foto)
 ```
 
-## Compile and run the project
+## 📌 Endpoint API
 
-```bash
-# development
-$ npm run start
+Semua endpoint diawali prefix `/api/v1`. Dokumentasi interaktif lengkap tersedia di Swagger (`/api/docs`).
 
-# watch mode
-$ npm run start:dev
+| Modul | Endpoint | Method | Auth |
+|---|---|---|---|
+| Auth | `/auth/nasabah/register` | POST | Publik |
+| Auth | `/auth/admin/register` | POST | Publik |
+| Auth | `/auth/login` | POST | Publik |
+| Auth | `/auth/me` | GET | Bearer Token |
+| Nasabah | `/admin/nasabah` | GET, POST | Bearer Token (Admin) |
+| Nasabah | `/admin/nasabah/:id` | GET, PUT, DELETE | Bearer Token (Admin) |
+| Kategori Sampah | `/kategori-sampah` | GET | Publik |
+| Kategori Sampah | `/kategori-sampah` | POST | Bearer Token (Admin) |
+| Kategori Sampah | `/kategori-sampah/:id` | GET | Publik |
+| Kategori Sampah | `/kategori-sampah/:id` | PUT, DELETE | Bearer Token (Admin) |
+| Setor Sampah | `/setor-sampah/pengajuan` | POST | Bearer Token (Nasabah) |
+| Setor Sampah | `/setor-sampah/my-setor` | GET | Bearer Token (Nasabah) |
+| Setor Sampah | `/setor-sampah/admin/list` | GET | Bearer Token (Admin) |
+| Setor Sampah | `/setor-sampah/:id` | GET | Bearer Token |
+| Setor Sampah | `/setor-sampah/admin/verify/:id` | PUT | Bearer Token (Admin) |
+| Hadiah | `/hadiah` | GET | Publik |
+| Hadiah | `/hadiah` | POST | Bearer Token (Admin) |
+| Hadiah | `/hadiah/:id` | GET | Publik |
+| Hadiah | `/hadiah/:id` | PUT, DELETE | Bearer Token (Admin) |
+| Penukaran Poin | `/penukaran-poin/tukar` | POST | Bearer Token (Nasabah) |
+| Penukaran Poin | `/penukaran-poin/my-penukaran` | GET | Bearer Token (Nasabah) |
+| Penukaran Poin | `/penukaran-poin/admin/list` | GET | Bearer Token (Admin) |
+| Penukaran Poin | `/penukaran-poin/admin/status/:id` | PUT | Bearer Token (Admin) |
+| Penukaran Poin | `/penukaran-poin/nota/:id` | GET | Bearer Token |
+| Rekapitulasi | `/rekapitulasi/bulanan?bulan=YYYY-MM` | GET | Bearer Token (Admin) |
+| Dashboard | `/dashboard/summary` | GET | Bearer Token (Nasabah) |
+| Dashboard | `/dashboard/stats` | GET | Bearer Token (Admin) |
+| Seed | `/seed` | POST | Publik (sekali generate) |
 
-# production mode
-$ npm run start:prod
+## 🗂️ Skema Database
+
+8 model utama: `User`, `Nasabah`, `AdminBank`, `KategoriSampah`, `SetorSampah`, `DetailSetor`, `Hadiah`, `PenukaranPoin`. Lihat detail lengkap di `prisma/schema.prisma`.
+
+## 🔑 Kredensial Default (dari Seed)
+
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin_banksampah` | `admin123` |
+| Nasabah | `nasabah_budi` | `password123` |
+| Nasabah | `nasabah_siti` | `password123` |
+
+Panggil `POST /api/v1/seed` untuk generate data ini beserta 4 kategori sampah, 3 hadiah, dan riwayat transaksi contoh. Seed hanya bisa dijalankan sekali (ditolak jika data admin sudah ada).
+
+## ⚙️ Environment Variables
+
+Buat file `.env` di root project, isi sesuai `.env.example`:
+
+```dotenv
+DATABASE_URL=postgresql://user:password@host:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://user:password@host:5432/postgres
+JWT_SECRET=your_jwt_secret_here
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-## Run tests
+## 🚀 Cara Menjalankan Aplikasi
 
+**1. Clone & install dependency**
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/<username>/<nama-repo>.git
+cd <nama-repo>
+npm install
 ```
 
-## Deployment
+**2. Setup environment variables**
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Isi `.env` sesuai contoh di atas.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+**3. Migration database**
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma generate
+npx prisma migrate dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**4. Jalankan server**
+```bash
+npm run start:dev
+```
 
-## Observability
+Server berjalan di `http://localhost:3000/api/v1`, dokumentasi Swagger di `http://localhost:3000/api/docs`.
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+**5. (Opsional) Generate data dummy**
+```bash
+curl -X POST http://localhost:3000/api/v1/seed
+```
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+## 📝 Catatan Desain
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+- **Tanpa mekanisme App Maker / multi-tenant (`x-app-key`):** karena kategori Backend membuat database sendiri yang dikelola sendiri, isolasi data antar siswa tidak diperlukan. Seluruh admin & nasabah berbagi satu ruang data yang sama (bukan sistem multi-unit/mitra terpisah).
+- **Registrasi Admin bersifat publik:** sesuai kontrak API yang diberikan, tanpa lapisan approval. Untuk produksi nyata, disarankan menambahkan verifikasi manual atau kode undangan.
+- **Field `tanggalLahir` pada update Nasabah tidak diimplementasikan:** skema database tidak menyimpan tanggal lahir nasabah, sehingga field ini dihapus dari DTO alih-alih menerima data yang tidak tersimpan.
+- **Poin baru masuk ke saldo nasabah setelah verifikasi Admin berstatus "selesai"**, bukan saat pengajuan — mencegah klaim berat sampah yang tidak akurat, dan dilindungi dari double-verification.
+- **Upload foto disimpan di Cloudinary**, bukan lokal — mengurangi beban storage server dan mendukung deployment tanpa kehilangan file saat redeploy.
 
-## Resources
+## 🌐 Deployment
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Aplikasi di-deploy ke **Railway**, terhubung dengan database Supabase yang sama dengan environment development.
